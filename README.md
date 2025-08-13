@@ -1,4 +1,7 @@
 # Data-Loading-CSV-to-SQL-Table
+
+<img width="450" height="550" alt="Automatización de Datos en Power BI" src="https://github.com/user-attachments/assets/585913de-6026-4fbc-80bc-7886664597a5" />
+
 Create a Python script that automatically extracts a CSV file from the inbound folder and loads it into the SQL table daily by setting up a task in the task scheduler, thereby eliminating manual activity.
 
 
