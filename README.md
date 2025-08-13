@@ -27,18 +27,17 @@ import pandas as pd
 from datetime import datetime
 from sqlalchemy import create_engine
 
-#--Folder paths (update only if needed)<br>
+#---Folder paths
 inbound_path = r"D:\EXCEL_Python_to_SQL\Inbound"
 processed_path = r"D:\EXCEL_Python_to_SQL\Processed"
 logs_path = r"D:\EXCEL_Python_to_SQL\Logs"
 
-#Database configuration
+#---Database configuration
 server = r"LAPTOP-0PF0BEHQ\MSSQLSERVER01"
 database = "Python_to_SQL"
 table_name = "HR_DATA_Py_to_SQL"
 
-#-------------------------
-#SQLAlchemy connection string for Windows Authentication
+#---SQLAlchemy connection string for Windows Authentication
 conn_str = (
     f"mssql+pyodbc://@{server}/{database}"
     "?driver=ODBC+Driver+17+for+SQL+Server"
@@ -46,15 +45,16 @@ conn_str = (
 )
 engine = create_engine(conn_str)
 
-#-------------------------
-#Function to write logs
-def write_log(message):
-    log_file = os.path.join(logs_path, f"log_{datetime.today().strftime('%Y-%m-%d')}.txt")
-    with open(log_file, 'a') as f:
+#---Function to write logs per file
+def write_log(file_name, message):
+    #create a unique log file for each CSV file (timestamp to avoid overwriting)
+    log_file_name = f"log_{os.path.splitext(file_name)[0]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    log_file_path = os.path.join(logs_path, log_file_name)
+    with open(log_file_path, 'a') as f:
         f.write(f"{datetime.now()} - {message}\n")
-        
-#-------------------------
-#Main file processing loop
+    return log_file_path  #return path if needed
+
+#---Main file processing loop
 for file in os.listdir(inbound_path):
     if file.endswith(".csv"):
         file_path = os.path.join(inbound_path, file)
@@ -64,14 +64,14 @@ for file in os.listdir(inbound_path):
 
             #Upload to SQL Server table
             df.to_sql(table_name, con=engine, if_exists='append', index=False)
-            write_log(f"SUCCESS: Loaded file '{file}' into table '{table_name}'.")
+            write_log(file, f"SUCCESS: Loaded file '{file}' into table '{table_name}'.")
 
-            #Move file to Processed folder 
+            #Move file to Processed folder
             shutil.move(file_path, os.path.join(processed_path, file))
-            write_log(f"MOVED: '{file}' to Processed folder.")
+            write_log(file, f"MOVED: '{file}' to Processed folder.")
 
         except Exception as e:
-            write_log(f"ERROR processing file '{file}': {e}")
+            write_log(file, f"ERROR processing file '{file}': {e}")
 ```
 
 Then convert the saved script(.ipynb) to .py
@@ -79,50 +79,55 @@ Then convert the saved script(.ipynb) to .py
  !jupyter nbconvert --to script csv_to_SQL.ipynb
 ```
 
+## 3. Batch File (csv_to_sql_loader_run.bat)
+Created in C:\Users\tausif shaikh\ with this content:
+```
+bat
+Copy
+Edit
+@echo off
+REM Change to the script directory
+cd /d "C:\Users\tausif shaikh"
 
-## 3. Automation: Windows: 
-**Task Scheduler**
-   - → Run script e.g. weekly/daily/hourly
+REM Run the Python script
+py "C:\Users\tausif shaikh\Excel_to_SQL.py"
 
-### Task Schedular Setup:
-Automatically run csv_to_SQL.py daily using Windows Task Scheduler.
+REM Exit cleanly
+exit /b 0
+```
+Save that as a ' .bat' file.
 
+Test:
+```
+"C:\Users\tausif shaikh\csv_to_sql_loader_run.bat"
+```
+If your inbound folder has CSVs, you should see logs and processed files update.
+
+## 4. Task Schedular Setup:
 **Pre-Requisite**</br>
 ✅ Python must be installed </br>
-✅ Python must be added to the system PATH (or we’ll use the full path to python.exe) </br>
+Automatically run csv_to_SQL.py daily using Windows Task Scheduler.
 
+1. **Open Task Scheduler** → Create Task.
+2. **General Tab:**
+   - Name: CSV to SQL Loader
+   - Select Run whether user is logged on or not
+   - Check Run with highest privileges
+3. **Triggers Tab:**
+   - New Trigger → Choose schedule (Daily, Hourly, etc.)
+4. **Actions Tab:**
+   - **New** → Start a program
+   - **Program/script:** "C:\Users\tausif shaikh\csv_to_sql_loader_run.bat"
+     (Quotes are required because of the space in the path)
+5. **Conditions Tab:** Uncheck “Start only if on AC power” if needed.
+6. **Settings Tab:** Enable “Allow task to be run on demand”.
+7. **Save** → Enter Windows password.
 
-➤  **STEP 1: Open Task Scheduler**
-- Press Win + S, type Task Scheduler, and open it
-- Click "Create Basic Task
-
-➤ **STEP 2: Fill in Task Details**
-- Name: Automate CSV to SQL Upload
-- Trigger: Then choose the start time (e.g., 09:00 AM) </br>
-- Action: Start a program
-  
-➤ **STEP 3: Configure Script Execution**
-- Program/script field:
-- Add arguments field:
-- Start in (Optional but safe to add):
-
-➤ **STEP 4: Finalize Task**
-- Click Next
-- Review details
-- Click Finish
-
-➤ **STEP 5 (RECOMMENDED): Run with Highest Privileges**
-- In Task Scheduler, find your task
-- Right-click → Properties
-- On the General tab:
-✅ Check: “Run with highest privileges”
-✅ Select: “Run whether user is logged on or not”
-
-➤ **STEP 6: Test It Now**
-- Right-click the task → Click Run
-- Open:
-   1. Your SQL table → check new rows
-   2. Logs folder → check today's log file
+#### ➤ **Test It Now**
+1. Right-click the task → Click Run
+   - Task Scheduler runs the .bat → which runs Python script → which processes files and      logs results.
+   - Task finishes immediately after processing — no hanging.
+2. Your SQL table → check new rows appended
 
 
 
