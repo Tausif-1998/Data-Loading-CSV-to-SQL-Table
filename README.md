@@ -4,7 +4,7 @@
 
 Create a Python script that automatically extracts a CSV file from the inbound folder and loads it into the SQL table daily by setting up a task in the task scheduler, thereby eliminating manual activity.
 
-
+---
 ## PROJECT REQUIREMENTS
 ✅ Read all .csv files from the Inbound folder </br>
 ✅ Upload them into the SQL Server table </br>
@@ -16,6 +16,8 @@ Create a Python script that automatically extracts a CSV file from the inbound f
 ├── Processed\    ➤  Processed files moved here after upload </br>
 └── Logs\         ➤  Logs saved as .txt with details </br>
 
+---
+# Steps Followed
 ## 1. SQL Server Setup: 
 Create SQL Table (Run in SSMS or Python)
    - Create a table where the CSV structure must match the SQL table schema.
@@ -131,6 +133,10 @@ Automatically run csv_to_SQL.py daily using Windows Task Scheduler.
    - Task Scheduler runs the .bat → which runs Python script → which processes files and      logs results.
    - Task finishes immediately after processing — no hanging.
 2. Your SQL table → check new rows appended
+
+---
+# 🤝 Contribution
+Contributions are welcome! Please open an issue or submit a pull request if you’d like to contribute to the project's enhancement.
 
 
 
