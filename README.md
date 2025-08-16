@@ -1,4 +1,5 @@
 # Data-Loading-CSV-to-SQL-Table
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 <img width="450" height="550" alt="Automatización de Datos en Power BI" src="https://github.com/user-attachments/assets/585913de-6026-4fbc-80bc-7886664597a5" />
 
@@ -138,7 +139,9 @@ Automatically run csv_to_SQL.py daily using Windows Task Scheduler.
 # 🤝 Contribution
 Contributions are welcome! Please open an issue or submit a pull request if you’d like to contribute to the project's enhancement.
 
-
+---
+## 📜 License
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
 
 
 
